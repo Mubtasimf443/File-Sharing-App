@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConfigService } from './config.service';
+import { SharedFilesService } from './shared_files.service';
 
-describe('ConfigService', () => {
-  let service: ConfigService;
+describe('SharedFilesService', () => {
+  let service: SharedFilesService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ConfigService],
+      providers: [SharedFilesService],
     }).compile();
 
-    service = module.get<ConfigService>(ConfigService);
+    service = module.get<SharedFilesService>(SharedFilesService);
   });
 
   it('should be defined', () => {

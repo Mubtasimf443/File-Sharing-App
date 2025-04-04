@@ -22,14 +22,10 @@ type Params = {
   
 export default async function page({params} : {params :Promise<Params> }) {
     let paramsInfo : undefined | string[] =(await params).slug;
-    let tab ;
-    if (paramsInfo) {
-        tab = paramsInfo[0].toLowerCase()
-    } else {
-        return <Home />
-    }
+    if (!paramsInfo) return <Home /> ;
 
-    
+
+    let tab = paramsInfo[0].toLowerCase();
     if (tab === "home") return <Home />;
     else if (tab === "files") return <Files />;
     else if (tab ===   "starred") return <Starred />;

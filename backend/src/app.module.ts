@@ -6,12 +6,14 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { FilesModule } from './files/files.module';
 import { SharedModule } from './shared/shared.module';
-import { ConfigModule } from './config/config.module';
+
 
 
 @Module({
-  imports: [FilesModule, SharedModule, ConfigModule],
+  imports: [FilesModule, SharedModule,],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule  {
+
+}
