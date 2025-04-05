@@ -12,13 +12,16 @@ const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const files_module_1 = require("./files/files.module");
 const shared_module_1 = require("./shared/shared.module");
-const config_module_1 = require("./config/config.module");
+const cors_1 = require("./common/midlewares/cors");
 let AppModule = class AppModule {
+    configure(consumer) {
+        consumer.apply(cors_1.CorsMiddleware).forRoutes("*");
+    }
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [files_module_1.FilesModule, shared_module_1.SharedModule, config_module_1.ConfigModule],
+        imports: [files_module_1.FilesModule, shared_module_1.SharedModule,],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
     })

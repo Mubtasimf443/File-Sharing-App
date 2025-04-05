@@ -1,14 +1,17 @@
 /*
 بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ  ﷺ   InshaAllah
 */
-import { Controller, FileTypeValidator, Get, HttpException, HttpStatus, MaxFileSizeValidator, Param, ParseFilePipe, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, FileTypeValidator, Get, HttpException, HttpStatus, InternalServerErrorException, MaxFileSizeValidator, Param, ParseFilePipe, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express';
+import { response, Response } from 'express';
 import { diskStorage } from 'multer';
 import path, { join } from 'path';
 import supabase from 'src/common/config/supabase';
 import { isEmail } from 'src/common/pipe/validation.pipe';
 import { FileService } from './files.service';
+import { ApiErrorHandle } from 'src/common/core/ApiErrorHandle';
+import { EmailPipe } from './validation.pipe';
+import env from 'src/common/config/Env';
 
 
 
@@ -60,6 +63,24 @@ export class FilesController {
 
         return { success: true, data: response, message: "OK" }
     }
+    @Get("path/standard/:path")
+    async getbyPathStandard(@Param("path", isEmail) path: string) {
+        let response = await supabase.storage.from("file-sharing-app").createSignedUrl(`public/${path}`, 3600, { download : true});
+        if (response.error) {
+            console.error(response.error);
+            throw new InternalServerErrorException("Unknown error")
+        }
+        if (response.data?.signedUrl) {
+            return ({ 
+                success : true ,
+                data :{
+                    url : response.data.signedUrl
+                },
+                error : null
+            });
+        }
+    }
+
 
     @Post()
     @UseInterceptors(
@@ -75,7 +96,7 @@ export class FilesController {
             }),
         }),
     )
-    uploadFile(
+    async uploadFile(
         @UploadedFile(
             new ParseFilePipe({
                 validators: [
@@ -85,17 +106,51 @@ export class FilesController {
             }),
         )
         file: Express.Multer.File,
+        @Query("email", EmailPipe) email :string,
     ) {
-        if (!file) {
-            throw new HttpException('No file uploaded', HttpStatus.BAD_REQUEST);
-        }
+        try {
+            if (!file || !email) {
+                throw new HttpException('No file uploaded', HttpStatus.BAD_REQUEST);
+            }
 
-        return {
-            filename: file.filename,
-            originalname: file.originalname,
-            path: this.fileService.getFileUrl(file.filename),
-            size: file.size,
-        };
+            let storageResponse =await supabase.storage.from('file-sharing-app').upload(`public/${file.filename}`, file.buffer, { cacheControl: "3600" });
+            
+            if (storageResponse.error) {
+                console.error( storageResponse.error);
+                throw new HttpException("Failed to Upload File in our external service" , 500)
+            }
+
+
+            let insertionFile :IFileModels = {
+                name : file.filename ,
+                file_size :String(file.size) ,
+                created_at : new Date(),
+                isStarred : false ,
+                isSecure : false,
+                path :`private/${file.filename}`,
+                user_email : email,
+                shared_with :[]
+            }
+            let databaseResponse = await supabase.from("files").insert(insertionFile);
+
+            if (databaseResponse.status !== 201) {
+                console.error(databaseResponse.error);
+                throw new InternalServerErrorException("Unknow server error")
+            }
+
+            return ({
+                success : true ,
+                data : { 
+                    url : env.ORIGIN + `/files/path/standard/${file.filename}`,
+                    fileName : file.filename
+                },
+                error : null
+            });
+
+        } catch (error) {
+            console.error(error);
+            throw new HttpException("Unknown server error" , 500);
+        }
     }
 
 }

@@ -39,7 +39,7 @@ export default function Home() {
           </p>
           <div className="flex space-x-4">
             <Link 
-              href={"/auth/sign-up"}
+              href={"/sign-up"}
               className="px-8 py-3 rounded-md text-lg font-medium text-white"
               style={{ backgroundColor: '#0AAF60' }}
             >

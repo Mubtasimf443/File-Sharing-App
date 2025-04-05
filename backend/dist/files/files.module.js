@@ -10,14 +10,13 @@ exports.FilesModule = void 0;
 const common_1 = require("@nestjs/common");
 const files_controller_1 = require("./files.controller");
 const files_service_1 = require("./files.service");
-const config_service_1 = require("../config/config.service");
 let FilesModule = class FilesModule {
 };
 exports.FilesModule = FilesModule;
 exports.FilesModule = FilesModule = __decorate([
     (0, common_1.Module)({
         controllers: [files_controller_1.FilesController],
-        providers: [files_service_1.FilesService, config_service_1.ConfigService]
+        providers: [files_service_1.FileService,]
     })
 ], FilesModule);
 //# sourceMappingURL=files.module.js.map

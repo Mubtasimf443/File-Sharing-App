@@ -7,19 +7,19 @@ import React from 'react'
 import Logo from '../element/Logo'
 import { SignedIn, SignedOut, SignIn, SignInButton, UserButton } from '@clerk/nextjs'
 
-const Header :React.FC= () => {
+const Header: React.FC = () => {
   return (
     <header className="bg-white shadow-md">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center">
-            <Logo size='small'/>
-            <h1 className="text-2xl font-bold" style={{ color: '#0AAF60' }}>ShareFiles</h1>
-          </div>
-          <nav>
-            <ul className="flex space-x-6">
-              <li><a href="#" className="hover:text-green-500 font-medium">Home</a></li>
-              <li><a href="#" className="hover:text-green-500 font-medium">About</a></li>
-              <li><a href="#" className="hover:text-green-500 font-medium">Contact</a></li>
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="flex items-center">
+          <Logo size='small' />
+          <h1 className="text-2xl font-bold" style={{ color: '#0AAF60' }}>ShareFiles</h1>
+        </div>
+        <nav>
+          <ul className="flex space-x-6">
+            <li><Link href="#" className="hover:text-green-500 font-medium">Home</Link></li>
+            <li><Link href="#" className="hover:text-green-500 font-medium">About</Link></li>
+            <li><Link href="#" className="hover:text-green-500 font-medium">Contact</Link></li>
             <li>
               <SignedOut >
                 {/* <Link
@@ -30,16 +30,17 @@ const Header :React.FC= () => {
                   Login
                 </Link> */}
                 <SignInButton ></SignInButton>
-                
+
               </SignedOut>
               <SignedIn>
-                <UserButton />
+                <Link href={"/dashboard"} className="hover:text-green-500 font-medium">Dashboard</Link>
+                {/* <UserButton /> */}
               </SignedIn>
             </li>
-            </ul>
-          </nav>
-        </div>
-      </header>
+          </ul>
+        </nav>
+      </div>
+    </header>
   )
 }
 

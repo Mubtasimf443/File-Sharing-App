@@ -7,7 +7,9 @@ import GiveFileIcon from '@/components/DashBoard/upload_files/GiveFileIcon';
 import SelectFile from '@/components/DashBoard/upload_files/SelectFile';
 import UploadButton from '@/components/DashBoard/upload_files/UploadButton';
 import UploadError from '@/components/DashBoard/upload_files/UploadError';
-import React, { useState, useRef, ChangeEvent, FormEvent } from 'react';
+import { useUser } from '@clerk/nextjs';
+import React, { useState, useRef, ChangeEvent, FormEvent, useEffect, useMemo } from 'react';
+import toast from 'react-hot-toast';
 
 interface FileUploadFormProps {
   maxFileSize?: number; // in MB
@@ -26,9 +28,13 @@ const UploadFile: React.FC<FileUploadFormProps> = ({
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadSuccess, setUploadSuccess] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-
+  const [user,setUser] = useState<string | null >(null)
   const inputRef = useRef<HTMLInputElement>(null);
 
+ 
+  const clerkResponse = useUser();
+ 
+ 
   // Format file size
   const formatFileSize = (size: number): string => {
     if (size < 1024) {
@@ -118,8 +124,26 @@ const UploadFile: React.FC<FileUploadFormProps> = ({
       setIsUploading(true);
       setError(null);
 
+      let form = new FormData();
+      form.append("file", selectedFile);
 
-
+      if (!process.env.NEXT_PUBLIC_API_URL) {
+       throw "Can not resolve server url"
+      }
+      let url = new URL(process.env.NEXT_PUBLIC_API_URL + '/files');
+       
+      
+       url.searchParams.append("email" , clerkResponse.user?.primaryEmailAddress?.emailAddress || "")
+      let response = await fetch(url.toString(), {
+        method: "post",
+        body: form
+      });
+      if (response.status !== 200) {
+        console.log((await response.json()));
+        
+        throw "Unknow server error";
+      }
+      setIsUploading(false);
       setUploadSuccess(true);
       // Clear selected file after 2 seconds
       setTimeout(() => {
@@ -196,6 +220,8 @@ const UploadFile: React.FC<FileUploadFormProps> = ({
 
         <UploadError error={error} />
       </form>
+
+
     </div>
   );
 };

@@ -1,12 +1,12 @@
 /*
 بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ  ﷺ   InshaAllah
 */
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module,NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { FilesModule } from './files/files.module';
 import { SharedModule } from './shared/shared.module';
-
+import { CorsMiddleware } from './common/midlewares/cors';
 
 
 @Module({
@@ -14,6 +14,9 @@ import { SharedModule } from './shared/shared.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule  {
+export class AppModule implements NestModule  {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CorsMiddleware).forRoutes("*")
 
+  }
 }

@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ApiErrorHandle = ApiErrorHandle;
 function ApiErrorHandle(error) {
+    console.error(error);
     if (typeof error === "string")
         return ({ message: error, success: false, data: null });
     else if (typeof error === "object")
